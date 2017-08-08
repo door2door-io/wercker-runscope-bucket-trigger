@@ -55,10 +55,11 @@ main() {
         if [ "$RESULT" = "working" ] || [ "$RESULT" = "queued" ]; then
           printf '.'
         else
+          echo ""
           break
         fi
       else
-        cat "$WERCKER_STEP_TEMP/tmp.json"
+        echo ""
         fail "curl request failed with $REQUEST_STATUS"
       fi
     done
