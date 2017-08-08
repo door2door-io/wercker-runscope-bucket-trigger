@@ -1,6 +1,6 @@
 # Runscope Bucket Trigger
 
-[![wercker status](https://app.wercker.com/status/34a92c184740e9422f15281f92288d07/s/master "wercker status")](https://app.wercker.com/project/bykey/34a92c184740e9422f15281f92288d07)
+[![wercker status](https://app.wercker.com/status/2a5b74379a6ccd7d619b51bd81b9cd1d/s "wercker status")](https://app.wercker.com/project/bykey/2a5b74379a6ccd7d619b51bd81b9cd1d)
 
 This step will trigger all tests defined in a Runscope bucket and wait
 until all tests have been executed.
