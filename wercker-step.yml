@@ -1,20 +1,20 @@
 name: runscope-bucket-trigger
-version: 1.0.10
+version: 1.0.11
 description: Triggers all tests in a Runscope bucket and waits for a successful response.
 keywords:
   - runscope
   - smoketest
 properties:
-  access_token:
+  access-token:
     type: string
     required: false
-  environment_uuid:
+  environment-uuid:
     type: string
     required: false
-  skip_monitoring:
+  skip-monitoring:
     type: string
     required: false
     default: "false"
-  trigger_token:
+  trigger-token:
     type: string
     required: true
