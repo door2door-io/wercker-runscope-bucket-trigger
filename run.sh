@@ -42,7 +42,9 @@ main() {
     fail "Failed to start Runscope bucket tests."
   else
     if [ "$WERCKER_RUNSCOPE_BUCKET_TRIGGER_SKIP_MONITORING" = "true" ]; then
-      info "Skip waiting for test to complete. Please go directly to Runscope to see the results."
+      TEST_RUN_URL=$(extract_json_value ".data.runs | .[0] | .test_run_url" "$WERCKER_STEP_TEMP/result.json")
+      info "Skip waiting for test to complete."
+      info "Please go directly to Runscope to see the results: $TEST_RUN_URL"
     else
       BUCKET_KEY=$(extract_json_value ".data.runs | .[0] | .bucket_key" "$WERCKER_STEP_TEMP/result.json")
       TEST_ID=$(extract_json_value ".data.runs | .[0] | .test_id" "$WERCKER_STEP_TEMP/result.json")
