@@ -15,8 +15,10 @@ main() {
   command -v curl >/dev/null 2>&1 || fail "Please install curl to execute this step."
 
   # check if runscope authentication token is present
-  if [ -z "$WERCKER_RUNSCOPE_BUCKET_TRIGGER_ACCESS_TOKEN" ]; then
-    fail "Please provide a Trigger Token for the bucket."
+  if [ "$WERCKER_RUNSCOPE_BUCKET_TRIGGER_SKIP_MONITORING" = "false" ]; then
+    if [ -z "$WERCKER_RUNSCOPE_BUCKET_TRIGGER_ACCESS_TOKEN" ]; then
+      fail "Please provide a Trigger Token for the bucket in order to monitor the execution."
+    fi
   fi
 
   # check if runscope trigger_token is present
@@ -39,36 +41,40 @@ main() {
     "$jq" -r "." "$WERCKER_STEP_TEMP/result.json"
     fail "Failed to start Runscope bucket tests."
   else
-    BUCKET_KEY=$(extract_json_value ".data.runs | .[0] | .bucket_key" "$WERCKER_STEP_TEMP/result.json")
-    TEST_ID=$(extract_json_value ".data.runs | .[0] | .test_id" "$WERCKER_STEP_TEMP/result.json")
-    TEST_RUN_ID=$(extract_json_value ".data.runs | .[0] | .test_run_id" "$WERCKER_STEP_TEMP/result.json")
-    RUNSCOPE_TEST_MONTIOR_URL="https://api.runscope.com/buckets/$BUCKET_KEY/tests/$TEST_ID/results/$TEST_RUN_ID"
+    if [ "$WERCKER_RUNSCOPE_BUCKET_TRIGGER_SKIP_MONITORING" = "true" ]; then
+      info "Skip waiting for test to complete. Please go directly to Runscope to see the results."
+    else
+      BUCKET_KEY=$(extract_json_value ".data.runs | .[0] | .bucket_key" "$WERCKER_STEP_TEMP/result.json")
+      TEST_ID=$(extract_json_value ".data.runs | .[0] | .test_id" "$WERCKER_STEP_TEMP/result.json")
+      TEST_RUN_ID=$(extract_json_value ".data.runs | .[0] | .test_run_id" "$WERCKER_STEP_TEMP/result.json")
+      RUNSCOPE_TEST_MONTIOR_URL="https://api.runscope.com/buckets/$BUCKET_KEY/tests/$TEST_ID/results/$TEST_RUN_ID"
 
-    info "Monitoring execution - this may take a moment"
+      info "Monitoring execution - this may take a moment"
 
-    while true; do
-      sleep 10
-      REQUEST_STATUS=$(curl --header "Authorization: Bearer $WERCKER_RUNSCOPE_BUCKET_TRIGGER_ACCESS_TOKEN" --create-dirs -s -S "$RUNSCOPE_TEST_MONTIOR_URL" --output "$WERCKER_STEP_TEMP/tmp.json" -w "%{http_code}")
+      while true; do
+        sleep 10
+        REQUEST_STATUS=$(curl --header "Authorization: Bearer $WERCKER_RUNSCOPE_BUCKET_TRIGGER_ACCESS_TOKEN" --create-dirs -s -S "$RUNSCOPE_TEST_MONTIOR_URL" --output "$WERCKER_STEP_TEMP/tmp.json" -w "%{http_code}")
 
-      if [ "$REQUEST_STATUS" = "200" ]; then
-        RESULT=$(extract_json_value ".data.result" "$WERCKER_STEP_TEMP/tmp.json")
-        if [ "$RESULT" = "working" ] || [ "$RESULT" = "queued" ]; then
-          printf '.'
+        if [ "$REQUEST_STATUS" = "200" ]; then
+          RESULT=$(extract_json_value ".data.result" "$WERCKER_STEP_TEMP/tmp.json")
+          if [ "$RESULT" = "working" ] || [ "$RESULT" = "queued" ]; then
+            printf '.'
+          else
+            echo ""
+            break
+          fi
         else
           echo ""
-          break
+          fail "curl request failed with $REQUEST_STATUS"
         fi
-      else
-        echo ""
-        fail "curl request failed with $REQUEST_STATUS"
-      fi
-    done
+      done
 
-    if [ "$RESULT" = "pass" ]; then
-      success "Successfully executed tests on the Runscope bucket."
-    else
-      "$jq" -r "del(.data.requests)" "$WERCKER_STEP_TEMP/tmp.json"
-      fail "Errors occured while executing the Runscope tests."
+      if [ "$RESULT" = "pass" ]; then
+        success "Successfully executed tests on the Runscope bucket."
+      else
+        "$jq" -r "del(.data.requests)" "$WERCKER_STEP_TEMP/tmp.json"
+        fail "Errors occured while executing the Runscope tests."
+      fi
     fi
   fi
 }
