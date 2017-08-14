@@ -18,7 +18,7 @@ for further information.
  _Note_: This variable is required when `skip-monitoring` is set to `false`
 
 * `runscope-trigger-token`: This token/id will be used to start a test in a
-bucket. 
+bucket.
 
  To obtain this token, please proceed to the [Runscope documentation](https://www.runscope.com/docs/api-testing/integrations).
 
@@ -42,5 +42,5 @@ deploy:
           access-token: $RUNSCOPE_ACCESS_TOKEN
           trigger-token: $RUNSCOPE_TRIGGER_TOKEN
           environment-uuid: $RUNSCOPE_ENVIRONMENT_UUID
-          skip-monitoring: "false"
+          skip-monitoring: $RUNSCOPE_SKIP_MONITORING
 ```
