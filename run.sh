@@ -10,6 +10,11 @@ extract_json_value() {
 }
 
 main() {
+  # skip the script on demand...
+  if [ "$WERCKER_RUNSCOPE_BUCKET_TRIGGER_SKIP_TRIGGER" = "true" ]; then
+    info "Skipping this step entirely."
+    exit 0
+  fi
 
   # check if required tools are installed
   command -v curl >/dev/null 2>&1 || fail "Please install curl to execute this step."
