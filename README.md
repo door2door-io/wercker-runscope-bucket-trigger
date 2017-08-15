@@ -32,6 +32,8 @@ This will fall back to the default environment defined in your bucket if it is o
 not attempt to do any further calls to Runscope to monitor the execution of the tests.
 Thus the `runscope-access-token` is only required, when this variable is set to
 `true`.
+* `skip` (Default: `false`): Skip this test entirely. This variable
+should be set if you want to skip the exection in one pipeline.
 
 ## Example
 
@@ -43,4 +45,5 @@ deploy:
           trigger-token: $RUNSCOPE_TRIGGER_TOKEN
           environment-uuid: $RUNSCOPE_ENVIRONMENT_UUID
           skip-monitoring: $RUNSCOPE_SKIP_MONITORING
+          skip: $RUNSCOPE_SKIP_TRIGGER
 ```
